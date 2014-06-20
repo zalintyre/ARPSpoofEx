@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# $1	Victim IP Address
-# $2	Interface
 
 RCFILE="/tmp/arpspoofex.rc"
 
