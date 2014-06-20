@@ -10,7 +10,7 @@
 
 RCFILE="/tmp/arpspoofex.rc"
 
-while getopts "hnduv:r:i:" opt 
+while getopts "hnduv:r:i:s:" opt 
 do
 	case $opt in
 		h)	# Help
@@ -29,6 +29,7 @@ do
 			echo ""
 			echo -e "-d\t\t\tStart Driftnet"
 			echo -e "-u\t\t\tStart urlsnarf"
+			echo -e "-s <Hosts file>\t\tStart dnsspoof with hostsfile"
 			exit 1
 		;;
 		i)	# Interface
@@ -49,6 +50,9 @@ do
 		;;
 		u)	# Urlsnarf
 			URLSNARF=true
+		;;
+		s)	# Dnsspoof
+			DNSSPOOF=$OPTARG
 		;;
 	esac
 done
@@ -97,6 +101,11 @@ fi
 if [ "$URLSNARF" == "true" ]
 then
 	echo -e "screen -t urlsnarf urlsnarf -i $INTERFACE" >> $RCFILE
+fi
+
+if [ ! -z "$DNSSPOOF" ]
+then
+	echo -e "screen -t dnsspoof dnsspoof -i $INTERFACE -f $DNSSPOOF" >> $RCFILE
 fi
 
 echo -e "screen -r -t Main" >> $RCFILE
