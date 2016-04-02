@@ -3,7 +3,7 @@
 #===============================================================================================
 # System required: Linux
 # Packages required: arpspoof
-# Optional packages: driftnet, dnsspoof
+# Optional packages: driftnet, dnsspoof, urlsnarf
 # Description: Bundles several man-in-the-middle scripts.
 # Author: dsfranzi
 #===============================================================================================
